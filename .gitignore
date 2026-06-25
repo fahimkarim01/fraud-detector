@@ -1,0 +1,26 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+*.pyo
+.Python
+
+# Environment
+.env
+.env.local
+.env.production
+
+# Node
+node_modules/
+.next/
+out/
+dist/
+
+# Audio files
+*.wav
+*.mp3
+temp_audio.wav
+
+# OS
+.DS_Store
+Thumbs.db
