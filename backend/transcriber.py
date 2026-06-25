@@ -6,7 +6,7 @@ def transcribe_audio(file_path: str) -> str:
     if not hf_token:
         raise ValueError("HF_TOKEN environment variable is not set")
         
-    client = InferenceClient(token=hf_token)
+    client = InferenceClient(api_key=hf_token, provider="hf-inference")
     
     # InferenceClient automatically handles the correct endpoint routing, 
     # headers, and binary file streaming that the new API requires
