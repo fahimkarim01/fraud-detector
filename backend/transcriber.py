@@ -1,7 +1,7 @@
 import os
 import requests
 
-API_URL = "https://api-inference.huggingface.co/models/bangla-speech-processing/BanglaASR"
+API_URL = "https://router.huggingface.co/hf-inference/models/bangla-speech-processing/BanglaASR"
 
 def transcribe_audio(file_path: str) -> str:
     hf_token = os.environ.get("HF_TOKEN")
