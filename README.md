@@ -1,42 +1,161 @@
 # 🛡️ Bengali Fraud Detector
 
-Detect fraud calls and SMS in Bengali language. A free, open-source web tool to identify scam messages and audio calls.
+> **AI-powered fraud detection for Bengali phone calls and SMS messages**
 
-## Features
+A free, open-source web app that transcribes Bengali audio recordings and classifies them as fraud or legitimate — using a fine-tuned Bengali ASR model and keyword-based fraud analysis.
 
-- 📱 Analyze Bengali text messages (SMS, copy-paste)
-- 🎤 Analyze audio recordings of calls
-- ⚠️ Instant fraud detection with confidence scores
-- 🔒 No data collection, works offline
-- 🇧🇩 Bengali language support
-- 🎨 Simple, user-friendly interface
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-fraud--detector--bd.vercel.app-blue?style=for-the-badge&logo=vercel)](https://fraud-detector-bd.vercel.app/)
+[![Backend](https://img.shields.io/badge/Backend-Render-46E3B7?style=for-the-badge&logo=render)](https://render.com)
+[![ASR Model](https://img.shields.io/badge/ASR%20Space-HuggingFace-FFD21E?style=for-the-badge&logo=huggingface)](https://huggingface.co/spaces/fahimakrim/bengali-asr-api)
+[![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
 
-## Tech Stack
+---
 
-| Component | Technology |
-|-----------|-----------|
-| **Frontend** | Next.js, TypeScript, Tailwind CSS |
-| **Backend** | FastAPI, Python |
-| **Speech-to-Text** | OpenAI Whisper, BanglaASR |
-| **Classification** | Rule-based keyword matching |
-| **Deployment** | Vercel (frontend), Render (backend) |
+## ✨ Features
 
-## Quick Start
+| Feature | Description |
+|---|---|
+| 📱 **Text Analysis** | Paste any Bengali SMS or message and detect fraud instantly |
+| 🎤 **Audio Analysis** | Upload Bengali MP3/WAV call recordings for transcription + fraud check |
+| 🧠 **BanglaASR Model** | Uses `bangla-speech-processing/BanglaASR` — fine-tuned Whisper for Bengali (4.58% WER) |
+| ⚡ **Instant Results** | Fraud prediction with confidence score percentage |
+| 🔒 **Privacy First** | No data stored or logged — analysis is stateless |
+| 🇧🇩 **Bengali-Native** | Built specifically for the Bengali language and common local fraud patterns |
+| 💸 **100% Free** | Deployed on free tiers: Vercel + Render + Hugging Face Spaces |
 
-### Prerequisites
+---
 
-- Node.js 18+
-- Python 3.10+
+## 🏗️ Architecture
 
-### Frontend
-
-```bash
-cd frontend
-npm install
-npm run dev
+```
+User (Browser)
+     │
+     ▼
+┌─────────────────┐
+│  Frontend        │  Next.js + TypeScript + Tailwind CSS
+│  Vercel          │  https://fraud-detector-bd.vercel.app/
+└────────┬────────┘
+         │ HTTP POST (text or audio file)
+         ▼
+┌─────────────────┐
+│  Backend API     │  FastAPI + Python 3.11
+│  Render          │  /classify  /analyze-audio  /health
+└────────┬────────┘
+         │
+    ┌────┴────────────────────┐
+    │                         │
+    ▼                         ▼
+┌────────────┐      ┌──────────────────────┐
+│ classifier │      │ transcriber.py        │
+│ .py        │      │ (gradio_client)       │
+│            │      └──────────┬───────────┘
+│ Rule-based │                 │ HTTP (Gradio API)
+│ keyword    │                 ▼
+│ matching   │      ┌──────────────────────┐
+│ (local,    │      │  HF Space             │
+│  no API)   │      │  fahimakrim/          │
+└────────────┘      │  bengali-asr-api      │
+                    │                      │
+                    │  bangla-speech-       │
+                    │  processing/BanglaASR │
+                    │  (Whisper fine-tuned) │
+                    └──────────────────────┘
 ```
 
-Open `http://localhost:3000`
+---
+
+## 🛠️ Tech Stack
+
+| Layer | Technology | Purpose |
+|---|---|---|
+| **Frontend** | Next.js, TypeScript, Tailwind CSS | UI / user interaction |
+| **Backend** | FastAPI, Python 3.11 | REST API, orchestration |
+| **ASR Model** | `bangla-speech-processing/BanglaASR` | Bengali speech-to-text |
+| **ASR Hosting** | Hugging Face Spaces (CPU Free) | Runs the model for free |
+| **ASR Client** | `gradio_client` | Calls the HF Space API |
+| **Fraud Logic** | Rule-based keyword classifier | Detects fraud patterns |
+| **Frontend Host** | Vercel (Free) | Hosts the Next.js app |
+| **Backend Host** | Render (Free) | Hosts the FastAPI server |
+
+---
+
+## 🚀 Live Deployment
+
+| Service | URL |
+|---|---|
+| **Frontend** | https://fraud-detector-bd.vercel.app/ |
+| **ASR Space** | https://huggingface.co/spaces/fahimakrim/bengali-asr-api |
+
+---
+
+## 📖 Usage
+
+### Text Analysis
+1. Go to [fraud-detector-bd.vercel.app](https://fraud-detector-bd.vercel.app/)
+2. Paste a Bengali message in the text box
+3. Click **"📱 টেক্সট পরীক্ষা করুন"**
+4. Instantly see: **Fraud / Normal** + confidence score
+
+### Audio Analysis
+1. Upload a Bengali MP3 or WAV file (max 5MB)
+2. Click **"🎤 অডিও পরীক্ষা করুন"**
+3. The app will:
+   - Send audio → HF Space → BanglaASR model → transcript
+   - Run fraud classifier on the transcript
+   - Show: transcript + **Fraud / Normal** + confidence score
+
+> ⚠️ **Note:** The first audio request may take 60–90 seconds if the HF Space is cold-starting. Subsequent requests are faster.
+
+**Example:**
+```
+Input:  "আপনার একাউন্ট বন্ধ হয়ে যাবে। এখনই OTP দিন।"
+Output: 🚨 Fraud — 92% confidence
+```
+
+---
+
+## 🧠 How Fraud Detection Works
+
+The classifier uses a weighted keyword scoring system tuned for common Bengali fraud patterns:
+
+| Fraud Signal | Examples |
+|---|---|
+| **Credential theft** | OTP, PIN, পাসওয়ার্ড, গোপন নম্বর |
+| **Urgency pressure** | এখনই, তাড়াতাড়ি, একাউন্ট বন্ধ |
+| **Prize / lottery scams** | পুরস্কার, জিতেছেন, লটারি |
+| **Financial threats** | লোন, ব্যাংক, টাকা পাঠান |
+| **Authority impersonation** | পুলিশ, র‍্যাব, ম্যানেজার |
+
+Safety phrases (e.g., "আপনার অনুমতি") reduce false positives.
+
+---
+
+## 📁 Project Structure
+
+```
+fraud-detector/
+├── backend/
+│   ├── main.py            # FastAPI app — /classify, /analyze-audio, /health
+│   ├── classifier.py      # Bengali fraud keyword classifier (runs locally)
+│   ├── transcriber.py     # Calls HF Space via gradio_client
+│   ├── requirements.txt   # Python dependencies
+│   ├── Procfile           # Render startup command
+│   └── .python-version    # Python 3.11.9
+├── frontend/
+│   ├── app/
+│   │   └── page.tsx       # Main UI page
+│   └── lib/
+│       └── api.ts         # API call helpers
+└── README.md
+```
+
+---
+
+## ⚙️ Local Development
+
+### Prerequisites
+- Node.js 18+
+- Python 3.11+
 
 ### Backend
 
@@ -56,162 +175,109 @@ uvicorn main:app --reload
 
 API available at `http://localhost:8000`
 
-## Usage
-
-### Text Analysis
-
-1. Paste Bengali message in textarea
-2. Click "📱 টেক্সট পরীক্ষা করুন"
-3. See result: Fraud or Normal with confidence score
-
-### Audio Analysis
-
-1. Upload MP3/WAV file
-2. Click "🎤 অডিও পরীক্ষা করুন"
-3. See transcript + fraud detection result
-
-## How It Works
-
-The system uses keyword matching to detect fraud patterns:
-
-- Scans for fraud keywords: OTP, PIN, password, account closure, prize, loan, etc.
-- Applies weighted scoring based on keyword importance
-- Checks for safety phrases to reduce false positives
-- Returns: Fraud/Normal with confidence percentage
-
-**Example:**
-```
-Input: "আপনার একাউন্ট বন্ধ হয়ে যাবে। এখনই OTP দিন।"
-Output: Fraud - 92% confidence
-```
-
-## Limitations
-
-- Rule-based system (no machine learning)
-- Works best with clear Bengali audio
-- May miss new or evolving fraud patterns
-- Language-dependent (Bengali only)
-- Not suitable as sole security solution
-
-## Project Structure
-
-```
-fraud-detector/
-├── backend/
-│   ├── main.py          # FastAPI app
-│   ├── classifier.py    # Fraud detection logic
-│   ├── transcriber.py   # Audio transcription
-│   └── requirements.txt
-├── frontend/
-│   ├── app/
-│   │   └── page.tsx     # Main UI
-│   └── lib/
-│       └── api.ts       # API calls
-└── README.md
-```
-
-## Installation
+### Frontend
 
 ```bash
-git clone https://github.com/[username]/fraud-detector.git
-cd fraud-detector
+cd frontend
+npm install
+npm run dev
 ```
 
-Follow Quick Start section above.
+App available at `http://localhost:3000`
 
-## API Endpoints
+### Environment Variables
 
-### POST /classify
+**Frontend** — create `frontend/.env.local`:
+```env
+NEXT_PUBLIC_API_URL=http://localhost:8000
+```
 
-Classify Bengali text for fraud
+**Frontend** — create `frontend/.env.production`:
+```env
+NEXT_PUBLIC_API_URL=https://your-render-url.onrender.com
+```
+
+---
+
+## 📡 API Reference
+
+### `GET /health`
+Health check.
+```json
+{ "status": "ok", "message": "Fraud Detector API is running" }
+```
+
+### `POST /classify`
+Classify Bengali text for fraud.
 
 **Request:**
 ```json
-{
-  "text": "Bengali text here"
-}
+{ "text": "আপনার একাউন্ট বন্ধ হয়ে যাবে। এখনই OTP দিন।" }
 ```
+**Response:**
+```json
+{ "prediction": "Fraud", "confidence": 92.5 }
+```
+
+### `POST /analyze-audio`
+Upload Bengali audio for transcription + fraud classification.
+
+**Request:** `multipart/form-data` with field `file` (MP3 or WAV, max 5MB)
 
 **Response:**
 ```json
 {
-  "prediction": "Fraud",
-  "confidence": 92.5
-}
-```
-
-### POST /analyze-audio
-
-Analyze audio file and transcribe to Bengali
-
-**Request:** Multipart form data with audio file
-
-**Response:**
-```json
-{
-  "transcript": "Bengali transcribed text",
+  "transcript": "আপনার একাউন্ট বন্ধ হয়ে যাবে",
   "prediction": "Fraud",
   "confidence": 88.3
 }
 ```
 
-### GET /health
+---
 
-Health check endpoint
+## ⚠️ Limitations
 
-**Response:**
-```json
-{
-  "status": "ok"
-}
-```
+- Audio analysis requires the HF Space to be awake — first request after idle has a cold-start delay (~60–90s)
+- Rule-based classifier may miss new or evolving fraud patterns
+- Works best with clear Bengali audio (16kHz+)
+- Bengali language only — no English, Hindi, or mixed-language support
+- Not intended as a sole security solution — always verify independently
 
-## Environment Variables
+---
 
-### Frontend (.env.local)
+## 🔮 Future Improvements
 
-```
-NEXT_PUBLIC_API_URL=http://localhost:8000
-```
+- [ ] ML-based fraud classifier (replace keyword rules)
+- [ ] Real-time audio streaming transcription
+- [ ] Multi-language support (English, Hindi)
+- [ ] Browser extension
+- [ ] Fraud pattern community database
+- [ ] User feedback loop to improve detection accuracy
 
-### Frontend (.env.production)
+---
 
-```
-NEXT_PUBLIC_API_URL=https://[your-render-url].onrender.com
-```
+## ⚖️ Disclaimer
 
-## Deployment
+This tool is provided for educational and awareness purposes only. Always verify suspicious communications independently by contacting your bank or service provider directly. Do not rely solely on this tool for security decisions.
 
-**Backend:** Deployed on Render  
-**Frontend:** Deployed on Vercel
+---
 
-Refer to respective platform documentation for deployment instructions.
+## 📄 License
 
-## Known Issues
+[MIT License](LICENSE)
 
-- Whisper works best with clear audio (8kHz+)
-- May incorrectly flag legitimate messages containing keywords
-- No support for English, Hindi, or other languages
+---
 
-## Future Improvements
+## 👤 Author
 
-- User feedback system to improve detection
-- Fraud pattern database
-- Multi-language support
-- Fine-tuned Bengali ASR model
-- Browser extension
+**Md. Fahim Karim**
+GitHub: [@fahimkarim01](https://github.com/fahimkarim01)
 
-## Disclaimer
+---
 
-This tool is provided for educational purposes. Always verify suspicious calls independently. Contact your bank or service provider directly for verification. Do not rely solely on this tool for security decisions.
+## 📬 Contact
 
-## License
-
-MIT License
-
-## Contact
-
-**GitHub:** [fahimkarim01/fraud-detector](https://github.com/fahimkarim01/fraud-detector)  
+**GitHub:** [fahimkarim01/fraud-detector](https://github.com/fahimkarim01/fraud-detector)
 **Issues:** [Report an issue](https://github.com/fahimkarim01/fraud-detector/issues)
 
 For bugs or suggestions, open an issue on GitHub.
