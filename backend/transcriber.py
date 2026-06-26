@@ -11,7 +11,7 @@ def transcribe_audio(file_path: str) -> str:
     client = Client(SPACE_ID)
     result = client.predict(
         audio_path=handle_file(file_path),
-        api_name="/predict"
+        api_name="/transcribe"
     )
     if result:
         return str(result).strip()
