@@ -412,10 +412,10 @@ export default function Home() {
             }
           </p>
           <div className="flex justify-center gap-6">
-            <a href="https://github.com/YOUR_USERNAME/fraud-detector" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+            <a href="https://github.com/fahimkarim01/fraud-detector" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
               {t[lang].github}
             </a>
-            <a href="https://github.com/YOUR_USERNAME/fraud-detector/issues" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+            <a href="https://github.com/fahimkarim01/fraud-detector/issues" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
               {t[lang].feedback}
             </a>
           </div>
